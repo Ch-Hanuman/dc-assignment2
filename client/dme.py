@@ -8,7 +8,7 @@ from datetime import datetime
 from config import Config
 
 LOG_FILE  = os.path.join(os.path.dirname(__file__), Config.LOG_DIR, f"dme_{Config.DME_USERNAME}.log")
-os.makedirs(Config.LOG_DIR, exist_ok=True)
+os.makedirs(os.path.join(os.path.dirname(__file__), Config.LOG_DIR), exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
