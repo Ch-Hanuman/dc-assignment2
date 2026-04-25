@@ -94,7 +94,6 @@ class LamportDME:
         self.broadcast(MSG_RELEASE, ts)
         logger.info("*** CRITICAL SECTION RELEASED ***")
 
-
     def tick(self):
         with self.clock_lock:
             self.clock += 1
@@ -208,8 +207,6 @@ class LamportDME:
         peer = next(p for p in self.peers if p["id"] == sender)
         self.send_msg(peer, MSG_REPLY, reply_ts)
         logger.info(f"REPLIED to {sender} with ts={reply_ts}")
-        with self.replies_lock:
-            self.replies.add(sender)
         self.check_cs_condition()
 
     def handle_reply(self, sender, recv_ts):
@@ -220,7 +217,7 @@ class LamportDME:
         logger.info(f"REPLY from {sender} ts={recv_ts} | replies so far={replies_snapshot}")
         self.check_cs_condition()
 
-    def handle_release(self, sender: str, recv_ts: int):
+    def handle_release(self, sender, recv_ts):
         with self.queue_lock:
             before = list(self.queue)
             self.queue = [e for e in self.queue if e[1] != sender]
