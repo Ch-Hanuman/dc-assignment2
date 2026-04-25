@@ -28,7 +28,19 @@ def make_app_logger(node_id, log_dir):
 class ChatApp:
     def __init__(self):
         self.log = make_app_logger(Config.DME_NODE_ID, Config.LOG_DIR)
-        self.dme = LamportDME(node_id=Config.DME_NODE_ID, listen_port=Config.PORT, peers=Config.PEERS, log_dir=Config.LOG_DIR)
+        
+        # Callback to auto-view when other peers release CS
+        def on_release(sender_node):
+            print(f"\n[Peer {sender_node} released - updating view...]")
+            self.cmd_view()
+        
+        self.dme = LamportDME(
+            node_id=Config.DME_NODE_ID, 
+            listen_port=Config.PORT, 
+            peers=Config.PEERS, 
+            log_dir=Config.LOG_DIR,
+            on_release_callback=on_release
+        )
         self.log.info(f"ChatApp started | node={Config.DME_NODE_ID} user={Config.DME_USERNAME} server={Config.HOST}:{Config.PORT}")
 
     def cmd_view(self):

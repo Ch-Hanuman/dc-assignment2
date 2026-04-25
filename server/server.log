@@ -14,3 +14,13 @@
 25 Apr 10:32:46 [SERVER] INFO | Using existing chat file at C:\Users\hanum\Desktop\BITS\Assignments\DC Assignment\Assignment 2\server\chat.txt
 25 Apr 10:32:46 [SERVER] INFO | File server ready on 0.0.0.0:8000
 25 Apr 10:40:02 [SERVER] INFO | File server shutting down.
+25 Apr 10:44:11 [SERVER] INFO | Created new chat file at C:\Users\hanum\Desktop\BITS\Assignments\DC Assignment\Assignment 2\server\chat.txt
+25 Apr 10:44:11 [SERVER] INFO | File server ready on 0.0.0.0:8000
+25 Apr 10:45:27 [SERVER] INFO | VIEW -> 0 line(s) returned
+25 Apr 10:45:30 [SERVER] INFO | VIEW -> 0 line(s) returned
+25 Apr 10:45:34 [SERVER] INFO | VIEW -> 0 line(s) returned
+25 Apr 10:46:09 [SERVER] INFO | VIEW -> 0 line(s) returned
+25 Apr 10:46:15 [SERVER] INFO | POST  -> appended: '25 Apr 10:46 node2: Hi Everyone'
+25 Apr 10:46:58 [SERVER] INFO | VIEW -> 1 line(s) returned
+25 Apr 10:47:00 [SERVER] INFO | VIEW -> 1 line(s) returned
+25 Apr 10:47:04 [SERVER] INFO | VIEW -> 1 line(s) returned
