@@ -15,7 +15,6 @@ def make_logger(node_id, log_dir):
     fh = logging.FileHandler(os.path.join(log_dir, f"dme_{node_id}.log"))
     fh.setFormatter(fmt)
     logger.addHandler(fh)
-    # Only file logging - no console output
     return logger
 
 
@@ -25,16 +24,13 @@ MSG_RELEASE = "RELEASE"
 
 
 class LamportDME:
-    def __init__(self, node_id, listen_port, peers, log_dir, on_release_callback=None):
+    def __init__(self, node_id, listen_port, peers, log_dir):
         self.node_id      = node_id
         self.listen_port  = listen_port
         self.peers        = peers
         self.peer_ids     = [p["id"] for p in peers]
         self.n_peers      = len(peers)
         self.log          = make_logger(node_id, log_dir)
-
-        # Callback for RELEASE notifications (for auto-view)
-        self.on_release_callback = on_release_callback
 
         # Lamport logical clock
         self.clock       = 0
@@ -242,7 +238,3 @@ class LamportDME:
 
         self.log.info(f"RELEASE from {sender} ts={recv_ts} | queue {before} -> {after}")
         self.check_cs_condition()
-
-        # Trigger callback if set (for auto-view)
-        if self.on_release_callback:
-            self.on_release_callback(sender)
