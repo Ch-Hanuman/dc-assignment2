@@ -90,7 +90,7 @@ class ChatApp:
             self.log.info("DME lock released")
 
         if success:
-            print(f"Posted: {message}")
+            print("Message Sent")
 
     def run_repl(self):
         prompt = f"{Config.DME_USERNAME}@{Config.DME_NODE_ID}> "
