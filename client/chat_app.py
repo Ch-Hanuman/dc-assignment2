@@ -70,7 +70,7 @@ class ChatApp:
         success = False
         try:
             payload = json.dumps({"message": message}).encode()
-            conn    = http.client.HTTPConnection(self.server_host, self.server_port, timeout=10)
+            conn    = http.client.HTTPConnection(Config.FILE_SERVER_HOST, Config.FILE_SERVER_PORT, timeout=10)
             conn.request("POST", "/post", body=payload,
                 headers={"Content-Type": "application/json", "Content-Length": str(len(payload))}
             )

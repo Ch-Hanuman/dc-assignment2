@@ -96,12 +96,12 @@ class LamportDME:
         self.in_cs   = False
         self.want_cs = False
 
-        ts = self._tick()
+        ts = self.tick()
 
-        with self._queue_lock:
-            self._queue = [e for e in self._queue if e[1] != self.node_id]
+        with self.queue_lock:
+            self.queue = [e for e in self.queue if e[1] != self.node_id]
 
-        self.log.info(f"RELEASE | clock={ts} | queue after={self._queue}")
+        self.log.info(f"RELEASE | clock={ts} | queue after={self.queue}")
 
         # Broadcast RELEASE to all peers
         self._broadcast(MSG_RELEASE, ts)
@@ -193,8 +193,8 @@ class LamportDME:
             recv_ts  = msg["ts"]
             sender   = msg["node_id"]
 
-            new_clock = self._update_clock(recv_ts)
-            self._peer_ts[sender] = max(self.peer_ts.get(sender, 0), recv_ts)
+            new_clock = self.update_clock(recv_ts)
+            self.peer_ts[sender] = max(self.peer_ts.get(sender, 0), recv_ts)
 
             self.log.debug( f"RECV {msg_type} ts={recv_ts} from={sender} | local_clock={new_clock}")
 
@@ -211,10 +211,10 @@ class LamportDME:
             self.log.error(f"Handle conn error: {e}")
 
     def handle_request(self, sender, recv_ts, new_clock):
-        with self._queue_lock:
-            self._queue.append((recv_ts, sender))
-            self._queue.sort(key=lambda x: (x[0], x[1]))
-            q_snapshot = list(self._queue)
+        with self.queue_lock:
+            self.queue.append((recv_ts, sender))
+            self.queue.sort(key=lambda x: (x[0], x[1]))
+            q_snapshot = list(self.queue)
 
         self.log.info(f"REQUEST from {sender} ts={recv_ts} | queue={q_snapshot}")
         reply_ts = self.tick()
