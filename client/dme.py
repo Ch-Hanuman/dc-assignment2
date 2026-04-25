@@ -4,20 +4,10 @@ import os
 import socket
 import threading
 import time
-from datetime import datetime
 from config import Config
+from logger import get_logger
 
-LOG_FILE  = os.path.join(os.path.dirname(__file__), Config.LOG_DIR, f"dme_{Config.DME_USERNAME}.log")
-os.makedirs(os.path.join(os.path.dirname(__file__), Config.LOG_DIR), exist_ok=True)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [DME-{Config.DME_NODE_ID}] %(levelname)s | %(message)s",
-    datefmt="%d %b %H:%M:%S",
-    handlers=[logging.FileHandler(LOG_FILE)]
-)
-logger = logging.getLogger("dme")
-
+logger = get_logger("dme")
 
 MSG_REQUEST = "REQUEST"
 MSG_REPLY   = "REPLY"
@@ -81,7 +71,7 @@ class LamportDME:
         self.broadcast(MSG_REQUEST, ts)
 
         # Wait until conditions are met
-        logger.info("Waiting for CS permission …")
+        logger.info("Waiting for CS permission...")
         self.cs_granted.wait()
         self.in_cs = True
         logger.info(f"*** CRITICAL SECTION ENTERED *** | clock={self.clock}")

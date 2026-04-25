@@ -8,18 +8,9 @@ import time
 from datetime import datetime
 from config import Config
 from dme import LamportDME
+from logger import get_logger
 
-LOG_FILE  = os.path.join(os.path.dirname(__file__), Config.LOG_DIR, f"chatapp_{Config.DME_USERNAME}.log")
-os.makedirs(os.path.join(os.path.dirname(__file__), Config.LOG_DIR), exist_ok=True)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [SERVER] %(levelname)s | %(message)s",
-    datefmt="%d %b %H:%M:%S",
-    handlers=[logging.FileHandler(LOG_FILE)]
-)
-logger = logging.getLogger("chatapp")
-
+logger = get_logger("chatapp")
 
 class ChatApp:
     def __init__(self):
@@ -55,7 +46,7 @@ class ChatApp:
         message   = f"{timestamp} {Config.DME_USERNAME}: {text}"
 
         logger.info(f"CMD: post | message='{message}'")
-        logger.info("Requesting DME lock before write…")
+        logger.info("Requesting DME lock before write...")
 
         t_acquire_start = time.time()
         self.dme.acquire()
