@@ -27,9 +27,9 @@ def make_app_logger(node_id, log_dir):
 
 class ChatApp:
     def __init__(self):
-        self.log = make_app_logger(Config.NODE_ID, Config.LOG_DIR)
-        self.dme = LamportDME(node_id=Config.NODE_ID, listen_port=Config.PORT, peers=Config.PEERS, log_dir=Config.LOG_DIR)
-        self.log.info(f"ChatApp started | node={Config.NODE_ID} user={Config.USERNAME} server={Config.HOST}:{Config.PORT}")
+        self.log = make_app_logger(Config.DME_NODE_ID, Config.LOG_DIR)
+        self.dme = LamportDME(node_id=Config.DME_NODE_ID, listen_port=Config.PORT, peers=Config.PEERS, log_dir=Config.LOG_DIR)
+        self.log.info(f"ChatApp started | node={Config.DME_NODE_ID} user={Config.DME_USERNAME} server={Config.HOST}:{Config.PORT}")
 
     def cmd_view(self):
         self.log.info("CMD: view")
@@ -57,7 +57,7 @@ class ChatApp:
 
     def cmd_post(self, text):
         timestamp = datetime.now().strftime("%d %b %H:%M")
-        message   = f"{timestamp} {Config.USERNAME}: {text}"
+        message   = f"{timestamp} {Config.DME_USERNAME}: {text}"
 
         self.log.info(f"CMD: post | message='{message}'")
         self.log.info("Requesting DME lock before write…")
@@ -97,8 +97,8 @@ class ChatApp:
             print(f"Posted: {message}")
 
     def run_repl(self):
-        prompt = f"{Config.USERNAME}@{Config.NODE_ID}> "
-        print(f"\n=== Chat Room  |  node={Config.NODE_ID}  user={Config.USERNAME} ===")
+        prompt = f"{Config.DME_USERNAME}@{Config.DME_NODE_ID}> "
+        print(f"\n=== Chat Room  |  node={Config.DME_NODE_ID}  user={Config.DME_USERNAME} ===")
         print("Commands:  view  |  post <text>  |  quit\n")
 
         while True:

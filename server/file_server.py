@@ -69,7 +69,7 @@ async def post(body: PostRequest):
         try:
             with open(CHAT_FILE, "a") as f:
                 f.write(body.message + "\n")
-            logger.info(f"POST  → appended: {body.message!r}")
+            logger.info(f"POST  -> appended: {body.message!r}")
             return PostResponse(message=body.message)
         except OSError as e:
             logger.error(f"POST failed: {e}")

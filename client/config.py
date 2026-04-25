@@ -13,8 +13,8 @@ def parse_peers(peer_str):
 
 
 class Config:
-    NODE_ID = os.getenv("NODE_ID")
-    USERNAME = os.getenv("USERNAME")
+    DME_NODE_ID = os.getenv("DME_NODE_ID")
+    DME_USERNAME = os.getenv("DME_USERNAME")
     HOST = os.getenv("HOST")
     PORT = int(os.getenv("PORT"))
 
