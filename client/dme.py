@@ -5,17 +5,18 @@ import socket
 import threading
 import time
 from datetime import datetime
+from config import Config
 
-def make_logger(node_id, log_dir):
-    os.makedirs(log_dir, exist_ok=True)
-    logger = logging.getLogger(f"DME-{node_id}")
-    logger.setLevel(logging.DEBUG)
+LOG_FILE  = os.path.join(os.path.dirname(__file__), Config.LOG_DIR, f"dme_{Config.DME_USERNAME}.log")
+os.makedirs(Config.LOG_DIR, exist_ok=True)
 
-    fmt = logging.Formatter("%(asctime)s [%(name)s] %(levelname)s | %(message)s", datefmt="%d %b %H:%M:%S")
-    fh = logging.FileHandler(os.path.join(log_dir, f"dme_{node_id}.log"))
-    fh.setFormatter(fmt)
-    logger.addHandler(fh)
-    return logger
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [DME-{Config.DME_NODE_ID}] %(levelname)s | %(message)s",
+    datefmt="%d %b %H:%M:%S",
+    handlers=[logging.FileHandler(LOG_FILE)]
+)
+logger = logging.getLogger("dme")
 
 
 MSG_REQUEST = "REQUEST"
@@ -30,7 +31,6 @@ class LamportDME:
         self.peers        = peers
         self.peer_ids     = [p["id"] for p in peers]
         self.n_peers      = len(peers)
-        self.log          = make_logger(node_id, log_dir)
 
         # Lamport logical clock
         self.clock       = 0
@@ -59,8 +59,8 @@ class LamportDME:
         self.server_sock.listen(16)
         self.listener_thread = threading.Thread(target=self.listener, daemon=True, name=f"dme-listen-{node_id}")
         self.listener_thread.start()
-        self.log.info(f"DME listener started on port {listen_port}")
-        self.log.info(f"Peers: {self.peer_ids}")
+        logger.info(f"DME listener started on port {listen_port}")
+        logger.info(f"Peers: {self.peer_ids}")
 
     def acquire(self):
         self.want_cs = True
@@ -75,16 +75,16 @@ class LamportDME:
             self.queue.append(entry)
             self.queue.sort(key=lambda x: (x[0], x[1]))
 
-        self.log.info(f"ACQUIRE REQUEST | clock={ts} | queue={self.queue}")
+        logger.info(f"ACQUIRE REQUEST | clock={ts} | queue={self.queue}")
 
         # Broadcast REQUEST to all peers
         self.broadcast(MSG_REQUEST, ts)
 
         # Wait until conditions are met
-        self.log.info("Waiting for CS permission …")
+        logger.info("Waiting for CS permission …")
         self.cs_granted.wait()
         self.in_cs = True
-        self.log.info(f"*** CRITICAL SECTION ENTERED *** | clock={self.clock}")
+        logger.info(f"*** CRITICAL SECTION ENTERED *** | clock={self.clock}")
 
     def release(self):
         if not self.in_cs:
@@ -98,11 +98,11 @@ class LamportDME:
         with self.queue_lock:
             self.queue = [e for e in self.queue if e[1] != self.node_id]
 
-        self.log.info(f"RELEASE | clock={ts} | queue after={self.queue}")
+        logger.info(f"RELEASE | clock={ts} | queue after={self.queue}")
 
         # Broadcast RELEASE to all peers
         self.broadcast(MSG_RELEASE, ts)
-        self.log.info("*** CRITICAL SECTION RELEASED ***")
+        logger.info("*** CRITICAL SECTION RELEASED ***")
 
 
     def tick(self):
@@ -135,13 +135,13 @@ class LamportDME:
                     s.connect((peer["host"], peer["port"]))
                     s.sendall(payload)
                     s.close()
-                    self.log.debug(f"SENT {msg_type} ts={ts} -> {peer['id']}")
+                    logger.debug(f"SENT {msg_type} ts={ts} -> {peer['id']}")
                     return
                 except Exception as e:
                     if attempt < retries - 1:
                         time.sleep(0.2 * (attempt + 1))
                     else:
-                        self.log.error(f"Failed to send {msg_type} to {peer['id']}: {e}")
+                        logger.error(f"Failed to send {msg_type} to {peer['id']}: {e}")
 
         t = threading.Thread(target=try_send, daemon=True)
         t.start()
@@ -173,7 +173,7 @@ class LamportDME:
                 )
                 t.start()
             except Exception as e:
-                self.log.error(f"Listener error: {e}")
+                logger.error(f"Listener error: {e}")
 
     def handle_conn(self, conn, addr):
         try:
@@ -193,7 +193,7 @@ class LamportDME:
             new_clock = self.update_clock(recv_ts)
             self.peer_ts[sender] = max(self.peer_ts.get(sender, 0), recv_ts)
 
-            self.log.debug( f"RECV {msg_type} ts={recv_ts} from={sender} | local_clock={new_clock}")
+            logger.debug( f"RECV {msg_type} ts={recv_ts} from={sender} | local_clock={new_clock}")
 
             if msg_type == MSG_REQUEST:
                 self.handle_request(sender, recv_ts, new_clock)
@@ -205,7 +205,7 @@ class LamportDME:
                 self.handle_release(sender, recv_ts)
 
         except Exception as e:
-            self.log.error(f"Handle conn error: {e}")
+            logger.error(f"Handle conn error: {e}")
 
     def handle_request(self, sender, recv_ts, new_clock):
         with self.queue_lock:
@@ -213,11 +213,11 @@ class LamportDME:
             self.queue.sort(key=lambda x: (x[0], x[1]))
             q_snapshot = list(self.queue)
 
-        self.log.info(f"REQUEST from {sender} ts={recv_ts} | queue={q_snapshot}")
+        logger.info(f"REQUEST from {sender} ts={recv_ts} | queue={q_snapshot}")
         reply_ts = self.tick()
         peer = next(p for p in self.peers if p["id"] == sender)
         self.send_msg(peer, MSG_REPLY, reply_ts)
-        self.log.info(f"REPLIED to {sender} with ts={reply_ts}")
+        logger.info(f"REPLIED to {sender} with ts={reply_ts}")
         with self.replies_lock:
             self.replies.add(sender)
         self.check_cs_condition()
@@ -227,7 +227,7 @@ class LamportDME:
             self.replies.add(sender)
             replies_snapshot = set(self.replies)
 
-        self.log.info(f"REPLY from {sender} ts={recv_ts} | replies so far={replies_snapshot}")
+        logger.info(f"REPLY from {sender} ts={recv_ts} | replies so far={replies_snapshot}")
         self.check_cs_condition()
 
     def handle_release(self, sender: str, recv_ts: int):
@@ -236,5 +236,5 @@ class LamportDME:
             self.queue = [e for e in self.queue if e[1] != sender]
             after  = list(self.queue)
 
-        self.log.info(f"RELEASE from {sender} ts={recv_ts} | queue {before} -> {after}")
+        logger.info(f"RELEASE from {sender} ts={recv_ts} | queue {before} -> {after}")
         self.check_cs_condition()

@@ -9,26 +9,25 @@ from datetime import datetime
 from config import Config
 from dme import LamportDME
 
+LOG_FILE  = os.path.join(os.path.dirname(__file__), Config.LOG_DIR, f"chatapp_{Config.DME_USERNAME}.log")
+os.makedirs(Config.LOG_DIR, exist_ok=True)
 
-def make_app_logger(node_id, log_dir):
-    os.makedirs(log_dir, exist_ok=True)
-    logger = logging.getLogger(f"APP-{node_id}")
-    logger.setLevel(logging.DEBUG)
-    fmt = logging.Formatter("%(asctime)s [%(name)s] %(levelname)s | %(message)s", datefmt="%d %b %H:%M:%S")
-    fh = logging.FileHandler(os.path.join(log_dir, f"chat_app_{node_id}.log"))
-    fh.setFormatter(fmt)
-    logger.addHandler(fh)
-    return logger
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [SERVER] %(levelname)s | %(message)s",
+    datefmt="%d %b %H:%M:%S",
+    handlers=[logging.FileHandler(LOG_FILE)]
+)
+logger = logging.getLogger("chatapp")
 
 
 class ChatApp:
     def __init__(self):
-        self.log = make_app_logger(Config.DME_NODE_ID, Config.LOG_DIR)
         self.dme = LamportDME(node_id=Config.DME_NODE_ID, listen_port=Config.PORT, peers=Config.PEERS, log_dir=Config.LOG_DIR)
-        self.log.info(f"ChatApp started | node={Config.DME_NODE_ID} user={Config.DME_USERNAME} server={Config.HOST}:{Config.PORT}")
+        logger.info(f"ChatApp started | node={Config.DME_NODE_ID} user={Config.DME_USERNAME} server={Config.HOST}:{Config.PORT}")
 
     def cmd_view(self):
-        self.log.info("CMD: view")
+        logger.info("CMD: view")
         try:
             conn = http.client.HTTPConnection(Config.FILE_SERVER_HOST, Config.FILE_SERVER_PORT, timeout=10)
             conn.request("GET", "/view")
@@ -42,26 +41,26 @@ class ChatApp:
                     print(content)
                 else:
                     print("(chat room is empty)")
-                self.log.info("View successful")
+                logger.info("View successful")
             else:
                 print(f"[ERROR] Server returned {resp.status}: {body}")
-                self.log.error(f"View failed: {resp.status} {body}")
+                logger.error(f"View failed: {resp.status} {body}")
 
         except Exception as e:
             print(f"[ERROR] Could not reach file server: {e}")
-            self.log.error(f"View exception: {e}")
+            logger.error(f"View exception: {e}")
 
     def cmd_post(self, text):
         timestamp = datetime.now().strftime("%d %b %H:%M")
         message   = f"{timestamp} {Config.DME_USERNAME}: {text}"
 
-        self.log.info(f"CMD: post | message='{message}'")
-        self.log.info("Requesting DME lock before write…")
+        logger.info(f"CMD: post | message='{message}'")
+        logger.info("Requesting DME lock before write…")
 
         t_acquire_start = time.time()
         self.dme.acquire()
         t_acquire_end   = time.time()
-        self.log.info(f"DME lock granted after {t_acquire_end - t_acquire_start:.3f}s")
+        logger.info(f"DME lock granted after {t_acquire_end - t_acquire_start:.3f}s")
 
         success = False
         try:
@@ -75,19 +74,19 @@ class ChatApp:
             conn.close()
 
             if resp.status == 200:
-                self.log.info(f"Post successful | message='{message}'")
+                logger.info(f"Post successful | message='{message}'")
                 success = True
             else:
-                self.log.error(f"Post failed: {resp.status} {resp_body}")
+                logger.error(f"Post failed: {resp.status} {resp_body}")
                 print(f"[ERROR] Server error: {resp_body}")
 
         except Exception as e:
-            self.log.error(f"Post exception: {e}")
+            logger.error(f"Post exception: {e}")
             print(f"[ERROR] Could not reach file server: {e}")
 
         finally:
             self.dme.release()
-            self.log.info("DME lock released")
+            logger.info("DME lock released")
 
         if success:
             print("Message Sent")

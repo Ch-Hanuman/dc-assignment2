@@ -11,7 +11,8 @@ from pydantic import BaseModel, Field
 from config import Config
 
 CHAT_FILE = os.path.join(os.path.dirname(__file__), "chat.txt")
-LOG_FILE  = os.path.join(os.path.dirname(__file__), "/logs/server.log")
+LOG_FILE  = os.path.join(os.path.dirname(__file__), Config.LOG_DIR, "server.log")
+os.makedirs(Config.LOG_DIR, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
