@@ -1,0 +1,11 @@
+25 Apr 09:41:38 [DME-1] INFO | DME listener started on port 5001
+25 Apr 09:41:38 [DME-1] INFO | Peers: ['2']
+25 Apr 09:42:17 [DME-1] INFO | ACQUIRE REQUEST | clock=1 | queue=[(1, '1')]
+25 Apr 09:42:17 [DME-1] INFO | Waiting for CS permission …
+25 Apr 09:42:34 [DME-1] ERROR | Failed to send REQUEST to 2: timed out
+25 Apr 09:47:31 [DME-1] DEBUG | RECV REQUEST ts=1 from=2 | local_clock=2
+25 Apr 09:47:31 [DME-1] INFO | REQUEST from 2 ts=1 | queue=[(1, '1'), (1, '2')]
+25 Apr 09:47:31 [DME-1] INFO | REPLIED to 2 with ts=3
+25 Apr 09:47:31 [DME-1] INFO | *** CRITICAL SECTION ENTERED *** | clock=3
+25 Apr 09:47:31 [DME-1] DEBUG | SENT REPLY ts=3 -> 2
+25 Apr 09:47:32 [DME-1] INFO | RELEASE | clock=4 | queue after=[(1, '2')]

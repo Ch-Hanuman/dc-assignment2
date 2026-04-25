@@ -8,7 +8,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from client.config import Config
+from config import Config
 
 CHAT_FILE = os.path.join(os.path.dirname(__file__), "chat.txt")
 LOG_FILE  = os.path.join(os.path.dirname(__file__), "server.log")

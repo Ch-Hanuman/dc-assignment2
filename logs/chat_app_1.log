@@ -1,0 +1,7 @@
+25 Apr 09:41:38 [APP-1] INFO | ChatApp started | node=1 user=hanum server=192.168.0.175:5001
+25 Apr 09:41:51 [APP-1] INFO | CMD: view
+25 Apr 09:41:51 [APP-1] INFO | View successful
+25 Apr 09:42:17 [APP-1] INFO | CMD: post | message='25 Apr 09:42 hanum: Hi Nagendra'
+25 Apr 09:42:17 [APP-1] INFO | Requesting DME lock before write…
+25 Apr 09:47:31 [APP-1] INFO | DME lock granted after 314.065s
+25 Apr 09:47:32 [APP-1] INFO | Post successful | message='25 Apr 09:42 hanum: Hi Nagendra'

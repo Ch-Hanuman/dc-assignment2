@@ -104,7 +104,7 @@ class LamportDME:
         self.log.info(f"RELEASE | clock={ts} | queue after={self.queue}")
 
         # Broadcast RELEASE to all peers
-        self._broadcast(MSG_RELEASE, ts)
+        self.broadcast(MSG_RELEASE, ts)
         self.log.info("*** CRITICAL SECTION RELEASED ***")
 
 

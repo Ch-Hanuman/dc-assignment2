@@ -6,8 +6,8 @@ import os
 import sys
 import time
 from datetime import datetime
-from client.config import Config
-from client.dme import LamportDME
+from config import Config
+from dme import LamportDME
 
 
 def make_app_logger(node_id, log_dir):

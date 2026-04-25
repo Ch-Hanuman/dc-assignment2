@@ -1,0 +1,5 @@
+25 Apr 09:40:17 [SERVER] INFO | Created new chat file at C:\Users\hanum\Desktop\BITS\Assignments\DC Assignment\Assignment 2\server\chat.txt
+25 Apr 09:40:17 [SERVER] INFO | File server ready on 0.0.0.0:8000
+25 Apr 09:41:51 [SERVER] INFO | VIEW -> 0 line(s) returned
+25 Apr 09:47:15 [SERVER] INFO | VIEW -> 0 line(s) returned
+25 Apr 09:48:18 [SERVER] INFO | File server shutting down.
